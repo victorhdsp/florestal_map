@@ -29,10 +29,7 @@ const props = defineProps({
             @apply bg-[var(--color)];
         }
         .name {
-            @apply text-sm;
-            @apply font-semibold;
-            @apply text-gray-800;
-            @apply m-1;
+            @apply m-0;
         }
     }
 </style>
