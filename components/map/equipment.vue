@@ -2,10 +2,10 @@
     <div style="height:100%; width:100%">
         <LMap 
             ref="map" 
-            :zoom="zoom" 
+            :zoom="10" 
             :center="center" 
             :use-global-leaflet="false"
-            @ready="ready"
+            @ready="onReady"
         >
             <LTileLayer 
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -16,29 +16,17 @@
                 v-for="(marker, index) in props.markers"
                 :key="index"
                 :lat-lng="[marker.position.lat, marker.position.lon]"
-            >
-                <LPopup class="inner_popup">
-                    <h3>{{marker.name}}</h3>
-                    <EquipmentStatus
-                        :color="marker.state.color"
-                        :name="marker.state.name"
-                    />
-                </LPopup>
-            </LMarker>
+            />
         </LMap>
     </div>
 </template>
 
 <script lang="ts" setup>
+import type { IMarker, LeafletMap } from './type';
 import { ref, defineProps } from 'vue'
-import type { IEquipmentState, IPositionHistory } from '../../assets/types/equipament'
 
-export interface IMarker {
-    position: IPositionHistory
-    state: IEquipmentState
-    name: string
-    uid: string
-}
+const map = ref<LeafletMap|null>(null);
+const center = ref([-22.9068, -43.1729]);
 
 const props = defineProps({
     markers: {
@@ -47,25 +35,18 @@ const props = defineProps({
     }
 })
 
-const map = ref(null)
-const zoom = ref(10)
-const center = ref([-22.9068, -43.1729])
-let lat = 0
-let lon = 0
-
 for (let i = 0; i < props.markers.length; i++) {
-    lat += props.markers[i].position.lat
-    lon += props.markers[i].position.lon
+    center.value[0] += props.markers[i].position.lat
+    center.value[1] += props.markers[i].position.lon
 }
 
-lat /= props.markers.length
-lon /= props.markers.length
-center.value = [lat, lon]
+center.value[0] /= props.markers.length
+center.value[1] /= props.markers.length
 
-function ready () {
+function onReady () {
     if (!map.value) return
-    type LeafletMap = { leafletObject: { fitBounds: (bounds: number[][]) => void } };
-    (map.value as LeafletMap).leafletObject.fitBounds(
+    
+    map.value.leafletObject.fitBounds(
         props.markers.map((marker: IMarker) => {
             return [marker.position.lat, marker.position.lon]
         })
@@ -73,6 +54,12 @@ function ready () {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+    .inner_popup {
+        @apply flex flex-col gap-2 items-center;
 
+        p {
+            @apply m-0;
+        }
+    }
 </style>
