@@ -39,6 +39,16 @@ import { commandSelected, getMoreRecentDate, selectedStates, toggleStateFilter }
 import { useEquipmentStore } from "../store/equipments";
 
 const useEquipment = useEquipmentStore();
+definePageMeta({ name: "Mapa de equipamentos" });
+useHead({
+  title: "Mapa de equipamentos",
+  meta: [
+    {
+      name: "description",
+      content: "Mapa de equipamentos"
+    }
+  ]
+});
 
 const filteredEquipments = computed<IEquipment[]>(() => {
   let list = useEquipment.getEquipments();
@@ -60,7 +70,7 @@ const filteredEquipments = computed<IEquipment[]>(() => {
 });
 
 const commands = computed<Command[]>(() =>
-    filteredEquipments.value.map((equipment: IEquipment) => ({
+    useEquipment.getEquipments().map((equipment: IEquipment) => ({
         id: equipment.id,
         label: equipment.name,
         state: equipment.statesHistory[0].equipmentState,

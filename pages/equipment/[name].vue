@@ -55,6 +55,17 @@ if (!hasEquipement) {
 
 const equipment = hasEquipement as IEquipment;
 
+definePageMeta({ name: equipment.name });
+useHead({
+  title: equipment.name,
+  meta: [
+    {
+      name: "description",
+      content: equipment.equipmentModel.name
+    }
+  ]
+});
+
 const markers = computed<IMarker[]>(() => {
     return equipment.positionsHistory.map((position: IPositionHistory) => {
         return {
@@ -120,7 +131,6 @@ function calcProductivity(day: string): number {
   const productiveHours = Math.max(0, hours);
   return Math.round((productiveHours / 24) * 100);
 }
-
 </script>
 
 <style scoped lang="scss">
