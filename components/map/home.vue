@@ -17,6 +17,20 @@
                 :key="index"
                 :lat-lng="[marker.position.lat, marker.position.lon]"
             >
+                <LIcon>
+                    <div
+                        class="marker"
+                    >
+                        <UAvatar
+                            :chip-color="colorMap[marker.state.name]"
+                            chip-text=""
+                            chip-position="top-right"
+                            size="sm"
+                            :alt="marker.name.replace(/-/g, ' ')"
+                            class="icon"
+                        />
+                    </div>
+                </LIcon>
                 <LPopup class="inner_popup">
                     <h3>{{marker.name}}</h3>
                     <p>Produtividade: {{ 10 }}</p>
@@ -37,8 +51,15 @@
 </template>
 
 <script lang="ts" setup>
+import type { AvatarChipColor } from '../../node_modules/@nuxt/ui/dist/runtime/types/avatar';
 import type { IMarkerHome, LeafletMap } from './type';
 import { ref, defineProps } from 'vue'
+
+const colorMap: Record<string, AvatarChipColor> = {
+    "Operando": "green",
+    "Parado": "yellow",
+    "Manutenção": "red"
+}
 
 const map = ref<LeafletMap|null>(null);
 const center = ref([-22.9068, -43.1729]);
@@ -75,6 +96,11 @@ function onReady () {
 
         p {
             @apply m-0;
+        }
+    }
+    .marker {
+        .icon {
+            @apply translate-x-[-50%] translate-y-[-50%];
         }
     }
 </style>

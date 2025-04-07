@@ -1,11 +1,13 @@
+import type { IPositionHistory } from "../../assets/types/equipament"
+
 export interface IMarker {
     uid: string
     position: IPositionHistory
+    name: string
 }
 
 export interface IMarkerHome extends IMarker {
     state: IEquipmentState
-    name: string
     path?: string
 }
 
