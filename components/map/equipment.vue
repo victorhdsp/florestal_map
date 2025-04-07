@@ -16,7 +16,17 @@
                 v-for="(marker, index) in props.markers"
                 :key="index"
                 :lat-lng="[marker.position.lat, marker.position.lon]"
-            />
+            >
+                <LIcon>
+                    <div class="marker">
+                        <UAvatar
+                            size="sm"
+                            :alt="marker.name.replace(/-/g, ' ')"
+                            class="icon"
+                        />
+                    </div>
+                </LIcon>
+            </LMarker>
         </LMap>
     </div>
 </template>
@@ -55,11 +65,19 @@ function onReady () {
 </script>
 
 <style lang="scss" scoped>
-    .inner_popup {
-        @apply flex flex-col gap-2 items-center;
+    .marker {
+        .icon {
+            @apply relative z-0;
+            @apply translate-x-[-50%] translate-y-[-50%];
+        }
 
-        p {
-            @apply m-0;
+        &[data-active="true"] {
+            
+            .icon {
+                @apply z-10;
+                @apply scale-125 shadow-lg;
+                @apply transition-all duration-200;
+            }
         }
     }
 </style>

@@ -2,14 +2,27 @@
     <LayoutEquipment>
         <template #aside>
             <div class="equipment-aside">
-                <h1>{{metadata.name}}</h1>
-                <h2>{{metadata.equipment}}</h2>
+                <h1>Nome: {{ metadata.name }}</h1>
+                <h2>Equipamento: {{ metadata.equipment }}</h2>
                 <div class="state-history">
-                    <h3>State History</h3>
-                    <ul>
-                        <li v-for="(state, index) in metadata.stateHistory" :key="index" :style="`--color: ${state.equipmentState.color}`">
-                            <EquipmentStatus :color="state.equipmentState.color" :name="state.equipmentState.name" />
-                            <span class="date">{{new Date(state.date).toLocaleString()}}</span>
+                    <h2>State History</h2>
+                    <ul class="list-days">
+                        <li v-for="(states, day) in groupedStateHistory" :key="day" class="day">
+                            <h3>{{ day }}</h3>
+                            <p>Produtividade: {{ calcProductivity(day) }}%</p>
+                            <ul class="list-items">
+                                <li 
+                                    v-for="(state, index) in states" 
+                                    :key="index"
+                                    class="item"
+                                    :style="`--color: ${state.equipmentState.color}`"
+                                >
+                                    <EquipmentStatus
+:color="state.equipmentState.color"
+                                        :name="state.equipmentState.name" />
+                                    <span class="date">{{ new Date(state.date).toLocaleTimeString() }}</span>
+                                </li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
@@ -24,70 +37,130 @@
 </template>
 
 <script lang="ts" setup>
-import type { IEquipment, IPositionHistory } from '../../assets/types/equipament';
+import type { IEquipment, IPositionHistory, IStateHistory } from '../../assets/types/equipament';
 import type { IMarker } from '../../components/map/type';
 import { useEquipmentStore } from '../../store/equipments';
-    const route = useRoute();
-    const router = useRouter();
+import dayjs from 'dayjs';
+const route = useRoute();
+const router = useRouter();
+
+const useEquipment = useEquipmentStore();
+const hasEquipement = useEquipment.getEquipment(route.params.name as string);
+const selectedDate = ref<IPositionHistory[]>([]);
+
+if (!hasEquipement) {
+    console.error('Equipment not found');
+    router.push('/404');
+}
+
+const equipment = hasEquipement as IEquipment;
+
+const markers = computed<IMarker[]>(() => {
+    return equipment.positionsHistory.map((position: IPositionHistory) => {
+        return {
+            uid: equipment.id,
+            name: equipment.name,
+            position: position,
+            active: selectedDate.value.some((date: IPositionHistory) => date.date === position.date),
+        };
+    })
+});
+
+const metadata = computed(() => {
+    return {
+        id: equipment.id,
+        name: equipment.name,
+        equipment: equipment.equipmentModel.name,
+        stateHistory: equipment.statesHistory,
+        productive: 10
+    };
+});
+
+const groupedStateHistory = computed<Record<string, IStateHistory[]>>(() => {
+    const grouped: Record<string, IStateHistory[]> = {};
+    const states = metadata.value.stateHistory;
+    states.forEach((state: IStateHistory) => {
+        const date = state.date.split('T')[0];
+        if (!grouped[date]) {
+            grouped[date] = [];
+        }
+        if (state.date.split('T')[0] === date)
+            grouped[date].push(state);
+    });
+    return grouped;
+});
+
+function calcProductivity(day: string): number {
+  const states = groupedStateHistory.value[day] || [];
+  let hours = 0;
+  let operatingStart: string | null = null;
+  
+  for (let i = states.length - 1; i >= 0; i--) {
+    const currentState = states[i];
     
-    const useEquipment = useEquipmentStore();
-    const hasEquipement = useEquipment.getEquipment(route.params.name as string);
-    
-    if (!hasEquipement) {
-        console.error('Equipment not found');
-        router.push('/404');
+    if (currentState.equipmentState.name === 'Operando' && !operatingStart) {
+        operatingStart = currentState.date;
     }
 
-    const equipment = hasEquipement as IEquipment;
+    if (operatingStart && currentState.equipmentState.name !== 'Operando') {
+        const diff = dayjs(operatingStart).diff(currentState.date);
+        const diffHours = Math.abs(diff) / (1000 * 60 * 60);
+        hours += diffHours;
+        operatingStart = null;
+    }
+  }
+  
+  if (operatingStart) {
+    const endDay = dayjs(day).set('hour', 23).set('minute', 59).set('second', 59);
+    const diff = dayjs(operatingStart).diff(endDay);
+    const diffHours = Math.abs(diff) / (1000 * 60 * 60);
+    hours += diffHours;
+  }
+  
+  const productiveHours = Math.max(0, hours);
+  return Math.round((productiveHours / 24) * 100);
+}
 
-    const markers = computed<IMarker[]>(() => {
-        return equipment.positionsHistory.map((position: IPositionHistory) => {
-            return {
-                uid: equipment.id,
-                position: position,
-            };
-        })
-    });
-
-    const metadata = computed(() => {
-        return {
-            id: equipment.id,
-            name: equipment.name,
-            equipment: equipment.equipmentModel.name,
-            stateHistory: equipment.statesHistory,
-        };
-    });
 </script>
 
 <style scoped lang="scss">
-    .equipment-aside {
-        @apply flex flex-col gap-1 h-full;
+.equipment-aside {
+    @apply flex flex-col gap-1 h-full;
+
+    .state-history {
+        @apply flex flex-col gap-1;
+        @apply mt-5 h-full overflow-hidden;
+
+        .list-days {
+            @apply flex flex-col gap-2;
+            @apply pr-2 h-full;
+            @apply overflow-y-scroll;
+
+            .day {
+                @apply flex flex-col;
+                
+                .list-items {
+                    @apply flex flex-col gap-1;
+                    @apply pl-2 mt-2;
+
+                    .item {
+                        @apply p-2;
+                        @apply relative cursor-pointer;
+                        @apply flex gap-2 items-center;
+
+                        .date {
+                            @apply text-sm;
+                        }
         
-        .state-history {
-            @apply flex flex-col gap-1;
-            @apply mt-5 h-full overflow-hidden;
-
-            ul {
-                @apply flex flex-col gap-2;
-                @apply pr-2 h-full;
-                @apply overflow-y-scroll;
-
-                li {
-                    @apply flex flex-col;
-                    @apply p-2;
-                    @apply relative;
-                    
-                    .date {
-                        @apply text-sm;
-                    }
-
-                    &::after {
-                        @apply content-[''];
-                        @apply bg-[var(--color)] rounded-md opacity-20;
-                        @apply absolute left-0 top-0 w-full h-full -z-10;
+                        &::after {
+                            @apply content-[''];
+                            @apply bg-[var(--color)] rounded-md opacity-10;
+                            @apply absolute left-0 top-0 w-full h-full -z-10;
+                        }
                     }
                 }
             }
         }
     }
+}
 </style>
