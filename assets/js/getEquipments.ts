@@ -44,6 +44,8 @@ function getEquipmentStateHistory(equipamentId: string): IStateHistory[] {
             date: state.date,
             equipmentState: getEquipmentState(state.equipmentStateId),
         }
+    }).sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
     return stateHistory;
 }
@@ -59,6 +61,8 @@ function getPositionHistory(equipamentId: string): IPositionHistory[] {
             lat: position.lat,
             lon: position.lon,
         }
+    }).sort((a, b) => {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
     });
     return positionHistory;
 }
