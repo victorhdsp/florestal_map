@@ -18,7 +18,7 @@
                 :lat-lng="[marker.position.lat, marker.position.lon]"
             >
                 <LIcon>
-                    <div class="marker">
+                    <div class="marker" :data-counter="index">
                         <UAvatar
                             size="sm"
                             :alt="marker.name.replace(/-/g, ' ')"
@@ -50,8 +50,9 @@ for (let i = 0; i < props.markers.length; i++) {
     center.value[1] += props.markers[i].position.lon
 }
 
-center.value[0] /= props.markers.length
-center.value[1] /= props.markers.length
+const map_length = props.markers.length
+center.value[0] /= map_length
+center.value[1] /= map_length
 
 function onReady () {
     if (!map.value) return
@@ -67,17 +68,19 @@ function onReady () {
 <style lang="scss" scoped>
     .marker {
         .icon {
-            @apply relative z-0;
+            @apply relative z-10;
             @apply translate-x-[-50%] translate-y-[-50%];
         }
 
-        &[data-active="true"] {
-            
-            .icon {
-                @apply z-10;
-                @apply scale-125 shadow-lg;
-                @apply transition-all duration-200;
-            }
+        &::after {
+            @apply absolute top-0 right-0;
+            @apply w-3 h-3 rounded-full;
+            @apply translate-x-[50%];
+            @apply bg-gray-300;
+            @apply text-[0.5rem];
+            @apply z-20;
+            @apply flex items-center justify-center;
+            content: attr(data-counter);
         }
     }
 </style>
