@@ -146,7 +146,7 @@ function calcProductivity(day: string): number {
 
         .list-days {
             @apply flex flex-col gap-2;
-            @apply pr-2 h-full;
+            @apply pr-2 mt-1 h-full;
             @apply overflow-y-scroll;
 
             .day {
@@ -158,7 +158,7 @@ function calcProductivity(day: string): number {
 
                     .item {
                         @apply p-2;
-                        @apply relative cursor-pointer;
+                        @apply relative;
                         @apply flex gap-2 items-center;
 
                         .date {

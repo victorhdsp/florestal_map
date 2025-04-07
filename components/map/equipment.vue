@@ -67,6 +67,8 @@ function onReady () {
 
 <style lang="scss" scoped>
     .marker {
+        @apply cursor-default;
+        
         .icon {
             @apply relative z-10;
             @apply translate-x-[-50%] translate-y-[-50%];
