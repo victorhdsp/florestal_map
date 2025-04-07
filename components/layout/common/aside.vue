@@ -8,7 +8,7 @@
         <USlideover v-model="isOpen">
             <div class="aside-content">
                 <header class="aside-header">
-                    <h2>{{pageName}}</h2>
+                    <h2>Menu</h2>
                     <UButton
                         size="lg"
                         icon="material-symbols-light:menu-rounded"
@@ -32,10 +32,6 @@
 
 <script lang="ts" setup>
 const isOpen = ref(false);
-const pageName = computed(() => {
-    const route = useRoute();
-    return route.meta.name;
-});
 </script>
 
 <style lang="scss" scoped>
