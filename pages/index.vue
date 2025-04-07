@@ -39,7 +39,6 @@ import { commandSelected, getMoreRecentDate, selectedStates, toggleStateFilter }
 import { useEquipmentStore } from "../store/equipments";
 
 const useEquipment = useEquipmentStore();
-definePageMeta({ name: "Mapa de equipamentos" });
 useHead({
   title: "Mapa de equipamentos",
   meta: [

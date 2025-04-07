@@ -55,7 +55,6 @@ if (!hasEquipement) {
 
 const equipment = hasEquipement as IEquipment;
 
-definePageMeta({ name: equipment.name });
 useHead({
   title: equipment.name,
   meta: [
