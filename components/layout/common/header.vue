@@ -1,6 +1,6 @@
 <template>
     <header class="header">
-        <UBreadcrumb :links="links" />
+        <UBreadcrumb class="bread-crumb" :links="links" />
     </header>
 </template>
 
@@ -39,7 +39,8 @@ const links = computed<BreadcrumbLink[]>(() => {
 
 <style lang="scss" scoped>
     .header {
-        @apply w-full;
-        @apply p-4;
+        @apply w-screen max-w-[calc(100%-(1rem*2)-(0.625rem*2)-1.25rem)] md:w-full md:max-w-full;
+        @apply p-4 py-6 md:py-4;
+        @apply flex items-center;
     }
 </style>
