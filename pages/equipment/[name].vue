@@ -40,13 +40,16 @@
 import type { IEquipment, IPositionHistory, IStateHistory } from '../../assets/types/equipament';
 import type { IMarker } from '../../components/map/type';
 import { useEquipmentStore } from '../../store/equipments';
-import dayjs from 'dayjs';
+import dayjs from 'dayjs'
+import 'dayjs/locale/pt-br'
 const route = useRoute();
 const router = useRouter();
 
 const useEquipment = useEquipmentStore();
 const hasEquipement = useEquipment.getEquipment(route.params.name as string);
 const selectedDate = ref<IPositionHistory[]>([]);
+
+dayjs.locale('pt-br');
 
 if (!hasEquipement) {
     console.error('Equipment not found');
@@ -90,11 +93,12 @@ const groupedStateHistory = computed<Record<string, IStateHistory[]>>(() => {
     const grouped: Record<string, IStateHistory[]> = {};
     const states = metadata.value.stateHistory;
     states.forEach((state: IStateHistory) => {
-        const date = state.date.split('T')[0];
+        const date = dayjs(state.date).format('DD/MM/YYYY');
         if (!grouped[date]) {
             grouped[date] = [];
         }
-        if (state.date.split('T')[0] === date)
+        const newDate = dayjs(state.date).format('DD/MM/YYYY');
+        if (newDate === date)
             grouped[date].push(state);
     });
     return grouped;
@@ -103,17 +107,17 @@ const groupedStateHistory = computed<Record<string, IStateHistory[]>>(() => {
 function calcProductivity(day: string): number {
   const states = groupedStateHistory.value[day] || [];
   let hours = 0;
-  let operatingStart: string | null = null;
+  let operatingStart: unknown | null = null;
   
   for (let i = states.length - 1; i >= 0; i--) {
     const currentState = states[i];
     
     if (currentState.equipmentState.name === 'Operando' && !operatingStart) {
-        operatingStart = currentState.date;
+        operatingStart = dayjs(currentState.date);
     }
 
     if (operatingStart && currentState.equipmentState.name !== 'Operando') {
-        const diff = dayjs(operatingStart).diff(currentState.date);
+        const diff = dayjs(currentState.date).diff(operatingStart);
         const diffHours = Math.abs(diff) / (1000 * 60 * 60);
         hours += diffHours;
         operatingStart = null;
@@ -121,8 +125,8 @@ function calcProductivity(day: string): number {
   }
   
   if (operatingStart) {
-    const endDay = dayjs(day).set('hour', 23).set('minute', 59).set('second', 59);
-    const diff = dayjs(operatingStart).diff(endDay);
+    const endDay = dayjs(operatingStart).endOf('day');
+    const diff = dayjs(endDay).diff(operatingStart);
     const diffHours = Math.abs(diff) / (1000 * 60 * 60);
     hours += diffHours;
   }
