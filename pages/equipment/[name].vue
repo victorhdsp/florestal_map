@@ -5,7 +5,7 @@
                 <h1>Nome: {{ metadata.name }}</h1>
                 <h2>Equipamento: {{ metadata.equipment }}</h2>
                 <div class="state-history">
-                    <h2>State History</h2>
+                    <h2>Histórico de estados</h2>
                     <ul class="list-days">
                         <li v-for="(states, day) in groupedStateHistory" :key="day" class="day">
                             <h3>{{ day }}</h3>
@@ -18,7 +18,7 @@
                                     :style="`--color: ${state.equipmentState.color}`"
                                 >
                                     <EquipmentStatus
-:color="state.equipmentState.color"
+                                        :color="state.equipmentState.color"
                                         :name="state.equipmentState.name" />
                                     <span class="date">{{ new Date(state.date).toLocaleTimeString() }}</span>
                                 </li>
@@ -164,7 +164,7 @@ function calcProductivity(day: string): number {
                         &::after {
                             @apply content-[''];
                             @apply bg-[var(--color)] rounded-md opacity-10;
-                            @apply absolute left-0 top-0 w-full h-full -z-10;
+                            @apply absolute left-0 top-0 w-full h-full z-0;
                         }
                     }
                 }
