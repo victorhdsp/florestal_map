@@ -76,7 +76,7 @@ function onReady () {
             @apply absolute top-0 right-0;
             @apply w-3 h-3 rounded-full;
             @apply translate-x-[50%];
-            @apply bg-gray-300;
+            @apply bg-gray-300 dark:bg-gray-600;
             @apply text-[0.5rem];
             @apply z-20;
             @apply flex items-center justify-center;

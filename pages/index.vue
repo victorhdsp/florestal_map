@@ -95,7 +95,7 @@ const markers = computed<IMarkerHome[]>(() =>
             @apply grid grid-cols-3 justify-center rounded-md overflow-hidden;
         
             button {
-                @apply px-4 py-2 bg-gray-100 cursor-pointer transition;
+                @apply px-4 py-2 bg-gray-100 dark:text-gray-800 cursor-pointer transition;
         
                 &.selected {
                     @apply bg-gray-200;

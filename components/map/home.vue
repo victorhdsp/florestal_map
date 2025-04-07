@@ -93,8 +93,9 @@ function onReady () {
 <style lang="scss" scoped>
     .inner_popup {
         @apply flex flex-col gap-2 items-center;
-
-        p {
+        
+        * {
+            @apply text-gray-800;
             @apply m-0;
         }
     }
